@@ -7,6 +7,6 @@ namespace MovieAppBackend.IServices
     {
         public Task<List<ShowTimeDetails>> GetShowTime(int movieId);
         public Task<List<Theater>> GetTheaters();
-        public Task<List<TheaterExperience>> GetAllExperiences();
+        public Task<List<Experience>> GetAllExperiences();
     }
 }

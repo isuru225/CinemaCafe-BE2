@@ -141,28 +141,28 @@ namespace MovieAppBackend.Services
             }
         }
 
-        public async Task<List<TheaterExperience>> GetAllExperiences() 
+        public async Task<List<Experience>> GetAllExperiences() 
         {
-            List<TheaterExperience> theaterExperiences = new List<TheaterExperience>();
+            List<Experience> theaterExperiences = new List<Experience>();
             
             var query = """
                         SELECT *
-                        FROM TheaterExperience
+                        FROM Experience
                 """;
 
             try 
             {
-                var result = await _sqlConnection.QueryAsync<TheaterExperience>(
+                var result = await _sqlConnection.QueryAsync<Experience>(
                              query
                              );
-                foreach (var experience in result) 
+                foreach (var experience in result)
                 {
-                    TheaterExperience theaterExperience = new TheaterExperience();
+                    Experience theaterExperience = new Experience();
 
-                    theaterExperience.TheaterId = experience.TheaterId;
-                    theaterExperience.Experience = experience.Experience;
+                    theaterExperience.Id = experience.Id;
+                    theaterExperience.ExperienceType = experience.ExperienceType;
 
-                    theaterExperiences.Add( theaterExperience );
+                    theaterExperiences.Add(theaterExperience);
                 }
 
                 return theaterExperiences;
