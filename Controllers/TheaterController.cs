@@ -20,9 +20,24 @@ namespace MovieAppBackend.Controllers
         {
             try
             {
-                var result = await _theater.GetShowTime(movieId);
+                var result = await _theater.GetShowTime2(movieId);
                 return Ok(result);
             } catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occured while getting the movie show times");
+                return BadRequest(ex);
+            }
+
+        }
+        [HttpGet("show-time-all")]
+        public async Task<ActionResult> GetShowTimeForAllMovies()
+        {
+            try
+            {
+                var result = await _theater.GetShowTimeForAllMovies();
+                return Ok(result);
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occured while getting the movie show times");
                 return BadRequest(ex);
