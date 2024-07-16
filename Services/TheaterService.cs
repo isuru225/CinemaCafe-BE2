@@ -156,7 +156,7 @@ namespace MovieAppBackend.Services
                 List<int> theaterIds = new List<int>();
                 List<int> screenIds = new List<int>();
 
-                
+
                 foreach (var showing in result)
                 {
                     //check whether the theaterId exists or not.
@@ -173,7 +173,7 @@ namespace MovieAppBackend.Services
                         }
                         else
                         {
-                            
+
                             //Enter details into the showTimeDetails2
                             ScreenInfo screenInfo = new ScreenInfo();
                             screenInfo.showTimes = new List<DateTime>();
@@ -186,12 +186,12 @@ namespace MovieAppBackend.Services
                             showTimeDetail2?.theaterInfo[selectedTheaterInfoIndex].screensInfo.Add(screenInfo);
                             //update the screenIds list.
                             screenIds.Add(showing.ScreenId);
-                        }                    
+                        }
 
                     }
                     else
                     {
-                        
+
                         showTimeDetail2.MovieId = showing.MovieId;
                         //Create new TheaterInfo object
                         TheaterInfo theaterInfo = new TheaterInfo();
@@ -201,7 +201,7 @@ namespace MovieAppBackend.Services
                         theaterInfo.Id = showing.screen.TheaterId;
                         theaterInfo.TheaterName = showing.screen.theater.TheaterName;
                         theaterInfo.Location = showing.screen.theater.Location;
-                        
+
 
                         ScreenInfo screenInfo = new ScreenInfo();
                         screenInfo.showTimes = new List<DateTime>();
@@ -209,8 +209,8 @@ namespace MovieAppBackend.Services
                         screenInfo.TheaterId = showing.screen.TheaterId;
                         screenInfo.Experience = showing.screen.Experience;
                         screenInfo.showTimes.Add(showing.ShowTime);
-                        
-                        theaterInfo.screensInfo.Add( screenInfo );
+
+                        theaterInfo.screensInfo.Add(screenInfo);
                         //Added theaterInfo details into showTimeDetails
                         showTimeDetail2.theaterInfo.Add(theaterInfo);
 
@@ -285,7 +285,7 @@ namespace MovieAppBackend.Services
 
                         if (showTimeDetail.theaterInfo.Any(theater => theater.Id == showing.screen.TheaterId))
                         {
-                            
+
                             TheaterInfo theaterInfo = showTimeDetails2[selectedshowTimeDetailIndex].theaterInfo.Find(theater => theater.Id == showing.screen.TheaterId);
                             int selectedTheaterInfoIndex = showTimeDetails2[selectedshowTimeDetailIndex].theaterInfo.FindIndex(theater => theater.Id == showing.screen.TheaterId);
                             if (theaterInfo.screensInfo.Any(screen => screen.Id == showing.ScreenId))
@@ -340,15 +340,15 @@ namespace MovieAppBackend.Services
                             //update the screenIds list.
                             screenIds.Add(showing.ScreenId);
                         }
-                      
+
                     }
                     else
                     {
                         ShowTimeDetails2 showTimeDetail2 = new ShowTimeDetails2();
                         showTimeDetail2.theaterInfo = new List<TheaterInfo>();
-                      
+
                         showTimeDetail2.MovieId = showing.MovieId;
-                        
+
                         //added details into theaterInfo object
 
                         TheaterInfo theaterInfo = new TheaterInfo();
@@ -385,7 +385,7 @@ namespace MovieAppBackend.Services
                         insertedMovieIds.Add(showing.MovieId);
 
                     }
-                    
+
                 }
                 return showTimeDetails2;
 
@@ -430,6 +430,31 @@ namespace MovieAppBackend.Services
                 _logger.LogError(ex, "An error occured while getting the details from the theater table.");
                 return theaters;
             }
+        }
+
+        public async Task<Theater> GetSelectedTheater(int id)
+        { 
+            var query = """
+                    SELECT *
+                    FROM THEATERS
+                    WHERE Id = @Id
+                """;
+            Theater theater = new Theater();
+            try
+            {
+                var result = await _sqlConnection.QueryAsync<Theater>(
+                        query,
+                        new { Id = id }
+                    );
+                theater = result.FirstOrDefault();
+                return theater;
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError(ex, "An error occured while getting the details from the theater table.");
+                return theater;
+            }
+
         }
 
         public async Task<List<Experience>> GetAllExperiences()

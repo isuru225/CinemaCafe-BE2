@@ -40,5 +40,27 @@ namespace MovieAppBackend.Controllers
             }
         }
 
+        [HttpPost("addclaims")]
+        public object RenewJWTToken([FromBody] Dictionary<string,string> claims) 
+        {
+            // Extract the token from the Authorization header
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            //if (string.IsNullOrEmpty(token)) 
+            //{
+            //    return new { data = "No token is received" };
+            //}
+            try 
+            {
+                
+                var result = _TokenService.RenewToken(token,claims);
+                return result;
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError(ex, "An error occured while renewing the token!");
+                return new { data = ex };
+            }
+        }
+
     }
 }

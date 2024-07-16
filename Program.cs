@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MovieAppBackend.IServices;
 using MovieAppBackend.Services;
+using MovieAppBackend.ConfigModels;
 
 namespace MovieAppBackend
 {
@@ -94,6 +95,7 @@ namespace MovieAppBackend
             builder.Services.AddScoped<IMovieService,MovieService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ITheater, TheaterService>();
+            builder.Services.Configure<JWTSettings>(builder.Configuration.GetSection("Jwt"));
 
             var app = builder.Build();
 

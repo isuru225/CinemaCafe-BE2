@@ -59,6 +59,21 @@ namespace MovieAppBackend.Controllers
             }
         }
 
+        [HttpGet("theater")]
+        public async Task<ActionResult> GetSelectedTheater([FromQuery] int id)
+        {
+            try
+            {
+                var result = await _theater.GetSelectedTheater(id);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occured while getting the selected theater.");
+                return BadRequest(ex);
+            }
+        }
+
         [HttpGet("get-experience")]
         public async Task<ActionResult> GetAllTheaterExperiences() 
         {

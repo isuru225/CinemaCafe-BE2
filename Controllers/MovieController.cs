@@ -33,11 +33,11 @@ namespace MovieAppBackend.Controllers
         }
 
         [HttpGet("movie_id")]
-        public async Task<ActionResult> GetMovieForGivenId([FromQuery] int movieId ) 
+        public async Task<ActionResult> GetMovieForGivenId([FromQuery] int id ) 
         {
             try
             {
-                var result = await _movieService.GetMovieForGivenId(movieId);
+                var result = await _movieService.GetMovieForGivenId(id);
                 return Ok(result); 
 
             }
