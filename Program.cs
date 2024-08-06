@@ -96,6 +96,11 @@ namespace MovieAppBackend
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ITheater, TheaterService>();
             builder.Services.Configure<JWTSettings>(builder.Configuration.GetSection("Jwt"));
+            builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<ISeatPlanService, SeatPlanService>();
+            builder.Services.AddScoped<IReservationService, ReservationService>();
+            
 
             var app = builder.Build();
 

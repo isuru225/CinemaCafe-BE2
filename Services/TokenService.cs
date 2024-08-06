@@ -6,6 +6,8 @@ using MovieAppBackend.IServices;
 using MovieAppBackend.ConfigModels;
 using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Reflection;
+using MovieAppBackend.Frontend.Models;
 
 namespace MovieAppBackend.Services
 {
@@ -19,7 +21,7 @@ namespace MovieAppBackend.Services
             _jWTSettings = options.Value;
         }
 
-        public object GetToken(int movieId) 
+        public object GetToken(Home home) 
         {
 
             //string key = "secret_key_12345_Auth_&_Author_$10010010_##"; //Secret key which will be used later during validation
@@ -34,8 +36,8 @@ namespace MovieAppBackend.Services
             var permClaims = new List<Claim>();
             permClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
             string userID = Guid.NewGuid().ToString();
-            permClaims.Add(new Claim("userid", userID));
-            permClaims.Add(new Claim("movieId", movieId.ToString()));
+            permClaims.Add(new Claim("userId", home.UserId));
+            permClaims.Add(new Claim("movieId", home.MovieId.ToString()));
 
             //Create Security Token object by giving required parameters    
             var token = new JwtSecurityToken(issuer, //Issure    
@@ -68,10 +70,39 @@ namespace MovieAppBackend.Services
             var jwtToken = (JwtSecurityToken)validatedToken;
             var existingClaims = jwtToken.Claims.ToList();
 
+            // Check for existing "aud" claim
+            var existingAudClaim = existingClaims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Aud && c.Value == "http://localhost:3000/");
+
+            if (existingAudClaim == null)
+            {
+                // Add the new "aud" claim if it doesn't already exist
+                existingClaims.Add(new Claim(JwtRegisteredClaimNames.Aud, _jWTSettings.Audience));
+            }
+
             // Add new claims
             foreach (var claim in claims)
             {
-                existingClaims.Add(new Claim(claim.Key, claim.Value));
+                //existingClaims.Add(new Claim(claim.Key, claim.Value));
+                //check the new claim key is already available in the existing token.
+                bool claimIsAlreadyAvailable = false;
+                for (int x = 0; x < existingClaims.Count(); x++) 
+                {
+                    var property = existingClaims[x].Type;
+                    if (property != null) 
+                    {
+                        if (property == claim.Key) 
+                        {
+                            //Add new claim value
+                            existingClaims[x] = new Claim(claim.Key, claim.Value);
+                            claimIsAlreadyAvailable = true;
+                        }  
+                    }
+                }
+                if (!claimIsAlreadyAvailable) 
+                {
+                    existingClaims.Add(new Claim(claim.Key, claim.Value));
+                }
+
             }
 
             // Create a new token with updated claims
@@ -80,8 +111,6 @@ namespace MovieAppBackend.Services
                 Subject = new ClaimsIdentity(existingClaims),
                 Expires = DateTime.UtcNow.AddDays(_jWTSettings.ExpiryInDays),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(securityKey), SecurityAlgorithms.HmacSha256Signature),
-                Issuer = _jWTSettings.Issuer,
-                Audience = _jWTSettings.Audience
             };
 
             var newToken = tokenHandler.CreateToken(newTokenDescriptor);

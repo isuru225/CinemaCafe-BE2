@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using MovieAppBackend.IServices;
+using MovieAppBackend.Frontend.Models;
 
 namespace MovieAppBackend.Controllers
 {
@@ -25,11 +26,11 @@ namespace MovieAppBackend.Controllers
         }
         
         [HttpPost("gettoken")]
-        public object GetJWTToken([FromBody] int id)
+        public object GetJWTToken([FromBody] Home home)
         {
             try
             {
-                var result = _TokenService.GetToken(id);
+                var result = _TokenService.GetToken(home);
                 _logger.LogInformation("Token has been created successfullly!");
                 return result;
             }
