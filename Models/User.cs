@@ -6,5 +6,6 @@
         public string UserName { get; set; }
         public string UserEmail { get; set; }
         public string MobileNumber { get; set; }
+        public bool IsRegistered { get; set; }
     }
 }

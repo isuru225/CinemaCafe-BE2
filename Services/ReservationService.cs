@@ -169,5 +169,134 @@ namespace MovieAppBackend.Services
             }
         
         }
+
+        public async Task<string> AddExistingUserInfo(User user) 
+        {
+            var query = """
+                    UPDATE Users
+                SET 
+                    UserName = @UserName,
+                    UserEmail = @UserEmail,
+                	MobileNumber = @MobileNumber
+                WHERE 
+                    Id = @Id;
+                """;
+            try 
+            {
+                var result = await _sqlConnection.ExecuteAsync(query,
+                    new 
+                    {
+                        UserName = user.UserName,
+                        UserEmail = user.UserEmail,
+                        MobileNumber = user.MobileNumber,
+                        Id = user.Id
+                    });
+
+                if (result == 1)
+                {
+                    return "User infos are successfully updated.";
+                }
+                else 
+                {
+                    return "User infos are failed to update";
+                }
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError(ex,"An error ouccured while updating the Users table.");
+                throw ex;
+            }
+        }
+
+        public async Task<Object> GetTicketPriceInfo(GettingTicketInfos gettingTicketInfos)
+        {
+            var query = """
+                    SELECT AdultTicketQty,ChildTicketQty, ScreenId
+                   FROM BookingInfos
+                   WHERE Id = @Id
+                   """;
+            try
+            {
+                var result = await _sqlConnection.QueryAsync<BookingInfo>(query,
+                    new
+                    {
+                        Id = gettingTicketInfos.BookingId
+                    });
+
+                TicketPricesQtys ticketPricesQtys = new TicketPricesQtys();
+
+                if (result != null)
+                {
+                    var queryForGetTicketPrices = """
+                            SELECT *
+                            FROM TicketPrices
+                            WHERE MovieId = @MovieId AND ScreenId = @ScreenId; 
+                        """;
+                    try
+                    {
+                        var ticketsPricesWithQty = await _sqlConnection.QueryAsync<TicketPrices>(queryForGetTicketPrices,
+                            new { MovieId = gettingTicketInfos.MovieId , ScreenId = result.FirstOrDefault().ScreenId });
+
+                        var bookingInfo = result.FirstOrDefault();
+                        var ticketPriceInfo = ticketsPricesWithQty.FirstOrDefault();
+
+                        if (ticketPriceInfo != null && bookingInfo != null)
+                        {
+                            var totalAdultTicketPrice = (ticketPriceInfo.adultTicketPrice) * (bookingInfo.AdultTicketQty);
+                            var totalChildTicketPrice = (ticketPriceInfo.childTicketPrice) * (bookingInfo.ChildTicketQty);
+
+                            ticketPricesQtys.TotalAdultTicketPrice = totalAdultTicketPrice;
+                            ticketPricesQtys.TotalChildTicketPrice = totalChildTicketPrice;
+                            ticketPricesQtys.AdultTicketQty = bookingInfo.AdultTicketQty;
+                            ticketPricesQtys.ChildTicketQty = bookingInfo.ChildTicketQty;
+
+                            return ticketPricesQtys;
+                            //return new
+                            //{
+                            //    totalAdultTicketPrice =  (decimal)totalAdultTicketPrice,
+                            //    totalChildTicketPrice = (decimal)totalChildTicketPrice,
+                            //    AdultTicketQty = (int)result.FirstOrDefault().AdultTicketQty,
+                            //    ChildTicketQty = (int)result.FirstOrDefault().ChildTicketQty
+                            //};
+
+                        }
+                        else 
+                        {
+                            return ticketPricesQtys;
+                            //return new
+                            //{
+                            //    totalAdultTicketPrice = (decimal?)null,
+                            //    totalChildTicketPrice = (decimal?)null,
+                            //    AdultTicketQty = (int?)null,
+                            //    ChildTicketQty = (int?)null
+                            //};
+                        }
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex,"An erro occured while retrieving data from TicketPrices table.");
+                        throw ex;
+                    }
+                }
+                else 
+                {
+                    return ticketPricesQtys;
+                    //return new
+                    //{
+                    //    totalAdultTicketPrice = (decimal?)null,
+                    //    totalChildTicketPrice = (decimal?)null,
+                    //    AdultTicketQty = (int?)null,
+                    //    ChildTicketQty = (int?)null
+                    //};
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An erro occured while retrieving data from BookingInfos table.");
+                throw ex;
+            }
+        }
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MovieAppBackend.Frontend.Models;
 using MovieAppBackend.IServices;
+using MovieAppBackend.Models;
 
 namespace MovieAppBackend.Controllers
 {
@@ -27,7 +28,7 @@ namespace MovieAppBackend.Controllers
             }
             catch (Exception ex) 
             {
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
             }
             
         }
@@ -42,7 +43,7 @@ namespace MovieAppBackend.Controllers
             }
             catch (Exception ex) 
             {
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -56,7 +57,35 @@ namespace MovieAppBackend.Controllers
             }
             catch (Exception ex) 
             {
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("adduserinfo")]
+        public async Task<IActionResult> AddExistingUserInfo([FromBody] User user) 
+        {
+            try
+            {
+                var result = await _reservationService.AddExistingUserInfo(user);
+                return Ok(result);
+            }
+            catch (Exception ex) 
+            {
+                return BadRequest(ex.Message);  
+            }
+        }
+
+        [HttpGet("getticketprice")]
+        public async Task<IActionResult> GetTicketPriceInfo([FromQuery] GettingTicketInfos gettingTicketInfos) 
+        {
+            try 
+            {
+                var result = await _reservationService.GetTicketPriceInfo(gettingTicketInfos);
+                return Ok(result);
+            }
+            catch (Exception ex) 
+            {
+                return BadRequest(ex.Message);
             }
         }
 

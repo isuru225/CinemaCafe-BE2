@@ -25,7 +25,7 @@ namespace MovieAppBackend.Controllers
             catch (Exception ex) 
             {
                 _logger.LogError(ex,"");
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
             }
             
         }

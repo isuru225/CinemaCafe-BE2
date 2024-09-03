@@ -25,7 +25,7 @@ namespace MovieAppBackend.Controllers
             } catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occured while getting the movie show times");
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
             }
 
         }
@@ -40,7 +40,7 @@ namespace MovieAppBackend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occured while getting the movie show times");
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
             }
 
         }
@@ -55,7 +55,7 @@ namespace MovieAppBackend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occured while getting the available theaters.");
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -70,7 +70,7 @@ namespace MovieAppBackend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occured while getting the selected theater.");
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
             }
         }
 
@@ -85,7 +85,7 @@ namespace MovieAppBackend.Controllers
             catch (Exception ex) 
             { 
                 _logger.LogError(ex,"An error occured while running the theater service");
-                return BadRequest(ex);
+                return BadRequest(ex.Message);
             }
         }
 

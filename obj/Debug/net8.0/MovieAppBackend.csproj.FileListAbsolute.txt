@@ -288,3 +288,9 @@ E:\ProjectOne\CinemaCafe-BE\CinemaCafe-BE2\obj\Debug\net8.0\refint\MovieAppBacke
 E:\ProjectOne\CinemaCafe-BE\CinemaCafe-BE2\obj\Debug\net8.0\MovieAppBackend.pdb
 E:\ProjectOne\CinemaCafe-BE\CinemaCafe-BE2\obj\Debug\net8.0\MovieAppBackend.genruntimeconfig.cache
 E:\ProjectOne\CinemaCafe-BE\CinemaCafe-BE2\obj\Debug\net8.0\ref\MovieAppBackend.dll
+E:\ProjectOne\CinemaCafe-BE\CinemaCafe-BE2\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.Internal.dll
+E:\ProjectOne\CinemaCafe-BE\CinemaCafe-BE2\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptography.KeyDerivation.dll
+E:\ProjectOne\CinemaCafe-BE\CinemaCafe-BE2\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
+E:\ProjectOne\CinemaCafe-BE\CinemaCafe-BE2\bin\Debug\net8.0\Microsoft.Extensions.Identity.Core.dll
+E:\ProjectOne\CinemaCafe-BE\CinemaCafe-BE2\bin\Debug\net8.0\Microsoft.Extensions.Identity.Stores.dll
+E:\ProjectOne\CinemaCafe-BE\CinemaCafe-BE2\bin\Debug\net8.0\Microsoft.Extensions.Options.dll

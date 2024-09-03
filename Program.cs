@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using MovieAppBackend.IServices;
 using MovieAppBackend.Services;
 using MovieAppBackend.ConfigModels;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using Microsoft.Data.SqlClient;
 
 namespace MovieAppBackend
 {
@@ -21,29 +25,45 @@ namespace MovieAppBackend
             builder.Services.AddDbContext<MovieAppDbContext>(options =>
                options.UseSqlServer(builder.Configuration.GetConnectionString("MovieAppDbContext") ?? throw new InvalidOperationException("Connection string 'MovieAppDbContext' not found.")));
 
+
+            builder.Services.AddDbContext<IdentityDbContext>(options =>
+              options.UseSqlServer(builder.Configuration.GetConnectionString("MovieAppDbContext") ?? throw new InvalidOperationException("Connection string 'MovieAppDbContext' not found.")));
+
             // Add services to the container.
+
+            builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<IdentityDbContext>()
+                .AddDefaultTokenProviders()
+                .AddRoles<IdentityRole>()
+                .AddSignInManager();
+
+            // Configure Identity options
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 1;
+
+                // Lockout settings
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings
+                options.User.AllowedUserNameCharacters =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = true;
+            });
+
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
-            //session
-            //builder.Services.AddDistributedMemoryCache();
-
-            //builder.Services.AddSession(options =>
-            //{
-            //    options.IdleTimeout = TimeSpan.FromSeconds(60);
-            //    options.Cookie.HttpOnly = true;
-            //    options.Cookie.Name = ".AdventureWorks.Session";
-            //    options.Cookie.IsEssential = true;
-            //});
-
-            // configure CORS for single domain
-            //builder.Services.AddCors(p => p.AddPolicy("corspolicy", build =>
-            //{
-            //    build.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader().AllowCredentials();
-            //}));
 
             builder.Services.AddCors(options =>
             {
@@ -58,23 +78,40 @@ namespace MovieAppBackend
 
             //JWT
 
-            string key = "secret_key_12345_Auth_&_Author_$10010010_##"; //this should be same which is used while creating token      
-            var issuer = "http://localhost:3000/";  //this should be same which is used while creating token 
+            var jwtSettings = new JWTSettings();
+            builder.Configuration.Bind("Jwt", jwtSettings);
 
-            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            // Configure JWTSettings for DI
+            var jwtSection = builder.Configuration.GetSection("Jwt");
+            builder.Services.Configure<JWTSettings>(jwtSection);
+
+
+            //string key = "secret_key_12345_Auth_&_Author_$10010010_##"; //this should be same which is used while creating token      
+            //var issuer = "http://localhost:3000/";  //this should be same which is used while creating token 
+
+            builder.Services.AddAuthentication(a => 
+            {
+                a.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                a.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                a.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
             .AddJwtBearer(options =>
             {
+                options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Key ?? 
+                    throw new InvalidOperationException())),
                     ValidateIssuer = true,
                     ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = issuer,
-                    ValidAudience = issuer,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+                    ValidateLifetime = true,      
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
+                    RequireExpirationTime = false
                 };
-
+                options.Audience = jwtSettings.Audience;
+                options.ClaimsIssuer = jwtSettings.Issuer;
                 options.Events = new JwtBearerEvents
                 {
                     OnAuthenticationFailed = context =>
@@ -92,15 +129,16 @@ namespace MovieAppBackend
 
             ///////////////////
             ///
-            builder.Services.AddScoped<IMovieService,MovieService>();
+            builder.Services.AddScoped<IMovieService, MovieService>();
             builder.Services.AddScoped<ITokenService, TokenService>();
             builder.Services.AddScoped<ITheater, TheaterService>();
             builder.Services.Configure<JWTSettings>(builder.Configuration.GetSection("Jwt"));
             builder.Services.AddScoped<IBookingService, BookingService>();
+            builder.Services.AddScoped<IIdentityService, IdentityService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ISeatPlanService, SeatPlanService>();
             builder.Services.AddScoped<IReservationService, ReservationService>();
-            
+
 
             var app = builder.Build();
 
@@ -111,7 +149,7 @@ namespace MovieAppBackend
                 app.UseSwaggerUI();
             }
 
-           
+
 
             app.UseHttpsRedirection();
 

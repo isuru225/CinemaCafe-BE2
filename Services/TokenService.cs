@@ -24,7 +24,7 @@ namespace MovieAppBackend.Services
         public object GetToken(Home home) 
         {
 
-            //string key = "secret_key_12345_Auth_&_Author_$10010010_##"; //Secret key which will be used later during validation
+            //Secret key which will be used later during validation
             string key = _jWTSettings.Key;
             var issuer = _jWTSettings.Issuer;  //normally this will be your site URL    
 
